@@ -33,8 +33,7 @@ function Login() {
       <div className="w-full max-w-md">
 
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🔧</div>
-          <h1 className="text-3xl font-bold text-white">Ferretería</h1>
+          <h1 className="text-4xl font-bold text-white">Ferreteria</h1>
           <p className="text-slate-400 mt-2">Sistema de Gestión</p>
         </div>
 
