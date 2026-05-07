@@ -13,10 +13,14 @@
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.105.3",
     "axios": "^1.16.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.15.0",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -29,6 +33,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "path": "^0.12.7",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.10"
