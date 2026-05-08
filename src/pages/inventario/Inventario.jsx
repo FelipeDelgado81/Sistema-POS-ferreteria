@@ -298,6 +298,25 @@ export default function Inventario() {
           </div>
         </div>
 
+        {showOnlyLowStock && (
+          <div className="px-4 py-3 border-b border-slate-200 bg-amber-50/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm text-amber-900">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="font-medium">
+                La tabla muestra solo productos con stock bajo.
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowOnlyLowStock(false)}
+              className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-amber-200 bg-white text-sm font-medium text-amber-900 hover:bg-amber-50 transition-colors"
+            >
+              Quitar filtro
+            </button>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-slate-800 font-semibold border-b border-slate-200">
@@ -381,7 +400,9 @@ export default function Inventario() {
               {filteredProducts.length === 0 && (
                 <tr>
                   <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
-                    No se encontraron productos con ese filtro.
+                    {showOnlyLowStock
+                      ? 'No hay productos con stock bajo para este filtro.'
+                      : 'No se encontraron productos con ese filtro.'}
                   </td>
                 </tr>
               )}
