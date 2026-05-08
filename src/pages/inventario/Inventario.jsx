@@ -23,6 +23,7 @@ export default function Inventario() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas');
   const [showOnlyLowStock, setShowOnlyLowStock] = useState(false);
+  const [stockAlertFilter, setStockAlertFilter] = useState('all');
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const searchInputRef = useRef(null);
   const categoryMenuRef = useRef(null);
@@ -103,6 +104,12 @@ export default function Inventario() {
     .sort((a, b) => (a.stock - a.minStock) - (b.stock - b.minStock));
   const criticalLowStockProducts = lowStockProducts.filter((product) => product.stock === 0);
   const warningLowStockProducts = lowStockProducts.filter((product) => product.stock > 0);
+  const visibleLowStockProducts =
+    stockAlertFilter === 'critical'
+      ? criticalLowStockProducts
+      : stockAlertFilter === 'warning'
+        ? warningLowStockProducts
+        : lowStockProducts;
 
   const selectedIngresoProduct = productos.find(
     (product) => product.id === Number(ingresoFormData.productId)
@@ -450,25 +457,66 @@ export default function Inventario() {
 
         <div className="divide-y divide-slate-100">
           {lowStockProducts.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/60 border-b border-slate-200">
-              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
-                <p className="text-sm font-medium text-rose-700">Críticos sin stock</p>
-                <p className="text-2xl font-bold text-rose-900">
-                  {criticalLowStockProducts.length}
-                </p>
-                <p className="text-xs text-rose-700 mt-1">
-                  Productos agotados que requieren reposición inmediata.
-                </p>
+            <div className="p-4 bg-slate-50/60 border-b border-slate-200 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
+                  <p className="text-sm font-medium text-rose-700">Críticos sin stock</p>
+                  <p className="text-2xl font-bold text-rose-900">
+                    {criticalLowStockProducts.length}
+                  </p>
+                  <p className="text-xs text-rose-700 mt-1">
+                    Productos agotados que requieren reposición inmediata.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <p className="text-sm font-medium text-amber-700">Alertas preventivas</p>
+                  <p className="text-2xl font-bold text-amber-900">
+                    {warningLowStockProducts.length}
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Productos con stock disponible, pero ya bajo el mínimo.
+                  </p>
+                </div>
               </div>
 
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-                <p className="text-sm font-medium text-amber-700">Alertas preventivas</p>
-                <p className="text-2xl font-bold text-amber-900">
-                  {warningLowStockProducts.length}
-                </p>
-                <p className="text-xs text-amber-700 mt-1">
-                  Productos con stock disponible, pero ya bajo el mínimo.
-                </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStockAlertFilter('all')}
+                  className={cn(
+                    'px-3 py-1 rounded-full border text-sm font-medium transition-colors',
+                    stockAlertFilter === 'all'
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  Todas ({lowStockProducts.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStockAlertFilter('critical')}
+                  className={cn(
+                    'px-3 py-1 rounded-full border text-sm font-medium transition-colors',
+                    stockAlertFilter === 'critical'
+                      ? 'border-rose-700 bg-rose-700 text-white'
+                      : 'border-rose-200 bg-white text-rose-700 hover:bg-rose-50'
+                  )}
+                >
+                  Críticas ({criticalLowStockProducts.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStockAlertFilter('warning')}
+                  className={cn(
+                    'px-3 py-1 rounded-full border text-sm font-medium transition-colors',
+                    stockAlertFilter === 'warning'
+                      ? 'border-amber-600 bg-amber-600 text-white'
+                      : 'border-amber-200 bg-white text-amber-700 hover:bg-amber-50'
+                  )}
+                >
+                  Preventivas ({warningLowStockProducts.length})
+                </button>
               </div>
             </div>
           )}
@@ -478,7 +526,12 @@ export default function Inventario() {
               No hay productos con stock bajo en este momento.
             </div>
           ) : (
-            lowStockProducts.map((product) => {
+            visibleLowStockProducts.length === 0 ? (
+              <div className="px-6 py-10 text-center text-sm text-slate-500">
+                No hay alertas para ese filtro.
+              </div>
+            ) : (
+            visibleLowStockProducts.map((product) => {
               const faltante = Math.max(product.minStock - product.stock, 0);
               const isCritical = product.stock === 0;
 
@@ -524,7 +577,7 @@ export default function Inventario() {
                   </div>
                 </div>
               );
-            })
+            }))
           )}
         </div>
       </div>
