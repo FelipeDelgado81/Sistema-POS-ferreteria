@@ -110,6 +110,15 @@ export default function Inventario() {
       : stockAlertFilter === 'warning'
         ? warningLowStockProducts
         : lowStockProducts;
+  const totalMissingUnits = visibleLowStockProducts.reduce(
+    (total, product) => total + Math.max(product.minStock - product.stock, 0),
+    0
+  );
+  const estimatedRestockCost = visibleLowStockProducts.reduce(
+    (total, product) =>
+      total + Math.max(product.minStock - product.stock, 0) * Number(product.priceBuy || 0),
+    0
+  );
 
   const selectedIngresoProduct = productos.find(
     (product) => product.id === Number(ingresoFormData.productId)
@@ -517,6 +526,26 @@ export default function Inventario() {
                 >
                   Preventivas ({warningLowStockProducts.length})
                 </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <p className="text-sm font-medium text-slate-500">Unidades por reponer</p>
+                  <p className="text-2xl font-bold text-slate-900">{totalMissingUnits}</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Según el filtro activo del panel.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <p className="text-sm font-medium text-slate-500">Costo estimado de reposición</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {formatCurrency(estimatedRestockCost)}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Calculado con el precio de compra actual.
+                  </p>
+                </div>
               </div>
             </div>
           )}
