@@ -101,6 +101,8 @@ export default function Inventario() {
   const lowStockProducts = productos
     .filter((product) => product.stock <= product.minStock)
     .sort((a, b) => (a.stock - a.minStock) - (b.stock - b.minStock));
+  const criticalLowStockProducts = lowStockProducts.filter((product) => product.stock === 0);
+  const warningLowStockProducts = lowStockProducts.filter((product) => product.stock > 0);
 
   const selectedIngresoProduct = productos.find(
     (product) => product.id === Number(ingresoFormData.productId)
@@ -447,6 +449,30 @@ export default function Inventario() {
         </div>
 
         <div className="divide-y divide-slate-100">
+          {lowStockProducts.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/60 border-b border-slate-200">
+              <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
+                <p className="text-sm font-medium text-rose-700">Críticos sin stock</p>
+                <p className="text-2xl font-bold text-rose-900">
+                  {criticalLowStockProducts.length}
+                </p>
+                <p className="text-xs text-rose-700 mt-1">
+                  Productos agotados que requieren reposición inmediata.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="text-sm font-medium text-amber-700">Alertas preventivas</p>
+                <p className="text-2xl font-bold text-amber-900">
+                  {warningLowStockProducts.length}
+                </p>
+                <p className="text-xs text-amber-700 mt-1">
+                  Productos con stock disponible, pero ya bajo el mínimo.
+                </p>
+              </div>
+            </div>
+          )}
+
           {lowStockProducts.length === 0 ? (
             <div className="px-6 py-10 text-center text-sm text-slate-500">
               No hay productos con stock bajo en este momento.
@@ -454,6 +480,7 @@ export default function Inventario() {
           ) : (
             lowStockProducts.map((product) => {
               const faltante = Math.max(product.minStock - product.stock, 0);
+              const isCritical = product.stock === 0;
 
               return (
                 <div
@@ -473,7 +500,17 @@ export default function Inventario() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
+                    <span
+                      className={cn(
+                        'px-3 py-1 rounded-full text-sm font-medium',
+                        isCritical
+                          ? 'bg-rose-100 text-rose-800'
+                          : 'bg-amber-100 text-amber-800'
+                      )}
+                    >
+                      {isCritical ? 'Sin stock' : 'Stock bajo'}
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
                       Faltan {faltante} unidades
                     </span>
                     <button
