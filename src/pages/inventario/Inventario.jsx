@@ -5,10 +5,15 @@ import { mockProductos } from '@/mock/productos';
 import Modal from '@/components/shared/Modal';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 
+const defaultCategories = ['Herramientas', 'Construcción', 'Pintura', 'Eléctrico', 'Plomería'];
+
 export default function Inventario() {
   const [productos, setProductos] = useState(mockProductos);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const searchInputRef = useRef(null);
+  const categoryMenuRef = useRef(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -18,7 +23,7 @@ export default function Inventario() {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    category: 'Herramientas',
+    category: defaultCategories[0],
     priceBuy: 0,
     priceRetail: 0,
     priceWholesale: 0,
@@ -32,10 +37,33 @@ export default function Inventario() {
     }
   }, []);
 
-  const filteredProducts = productos.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.code.includes(searchTerm)
-  );
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(event.target)) {
+        setIsCategoryMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const availableCategories = [
+    'Todas',
+    ...new Set([...defaultCategories, ...productos.map((product) => product.category)]),
+  ];
+
+  const filteredProducts = productos.filter((product) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      normalizedSearch === '' ||
+      product.name.toLowerCase().includes(normalizedSearch) ||
+      product.code.includes(searchTerm);
+    const matchesCategory =
+      selectedCategory === 'Todas' || product.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
 
   const handleOpenModal = (product = null) => {
     if (product) {
@@ -46,7 +74,7 @@ export default function Inventario() {
       setFormData({
         code: '',
         name: '',
-        category: 'Herramientas',
+        category: defaultCategories[0],
         priceBuy: 0,
         priceRetail: 0,
         priceWholesale: 0,
@@ -60,9 +88,13 @@ export default function Inventario() {
   const handleSave = (e) => {
     e.preventDefault();
     if (currentProduct) {
-      setProductos(prev => prev.map(p => p.id === currentProduct.id ? { ...formData, id: currentProduct.id } : p));
+      setProductos((prev) =>
+        prev.map((product) =>
+          product.id === currentProduct.id ? { ...formData, id: currentProduct.id } : product
+        )
+      );
     } else {
-      setProductos(prev => [...prev, { ...formData, id: Date.now() }]);
+      setProductos((prev) => [...prev, { ...formData, id: Date.now() }]);
     }
     setIsModalOpen(false);
   };
@@ -74,7 +106,7 @@ export default function Inventario() {
 
   const handleConfirmDelete = () => {
     if (productToDelete) {
-      setProductos(prev => prev.filter(p => p.id !== productToDelete.id));
+      setProductos((prev) => prev.filter((product) => product.id !== productToDelete.id));
     }
   };
 
@@ -85,7 +117,7 @@ export default function Inventario() {
           <h1 className="text-2xl font-bold text-slate-900">Inventario</h1>
           <p className="text-slate-500">Gestiona los productos, precios y stock</p>
         </div>
-        <button 
+        <button
           onClick={() => handleOpenModal()}
           className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm shadow-orange-600/20"
         >
@@ -98,7 +130,7 @@ export default function Inventario() {
         <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-50/50">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <input 
+            <input
               ref={searchInputRef}
               type="text"
               placeholder="Escanear código de barras o buscar..."
@@ -107,11 +139,46 @@ export default function Inventario() {
               className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
             />
           </div>
+
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm">
-              <Filter className="w-4 h-4" />
-              Categorías
-            </button>
+            <div className="relative w-full sm:w-auto" ref={categoryMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsCategoryMenuOpen((prev) => !prev)}
+                className={cn(
+                  'flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-white border rounded-lg transition-colors font-medium text-sm',
+                  selectedCategory === 'Todas'
+                    ? 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                    : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100'
+                )}
+              >
+                <Filter className="w-4 h-4" />
+                {selectedCategory === 'Todas' ? 'Categorías' : selectedCategory}
+              </button>
+
+              {isCategoryMenuOpen && (
+                <div className="absolute right-0 z-10 mt-2 w-full min-w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                  {availableCategories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setIsCategoryMenuOpen(false);
+                      }}
+                      className={cn(
+                        'w-full rounded-lg px-3 py-2 text-left text-sm transition-colors',
+                        selectedCategory === category
+                          ? 'bg-orange-50 text-orange-700'
+                          : 'text-slate-700 hover:bg-slate-50'
+                      )}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -149,27 +216,31 @@ export default function Inventario() {
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span>${Number(product.priceRetail).toLocaleString('es-CL')}</span>
-                      <span className="text-xs text-slate-400">May: ${Number(product.priceWholesale).toLocaleString('es-CL')}</span>
+                      <span className="text-xs text-slate-400">
+                        May: ${Number(product.priceWholesale).toLocaleString('es-CL')}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={cn(
-                      "font-semibold",
-                      product.stock <= product.minStock ? "text-amber-600" : "text-emerald-600"
-                    )}>
+                    <span
+                      className={cn(
+                        'font-semibold',
+                        product.stock <= product.minStock ? 'text-amber-600' : 'text-emerald-600'
+                      )}
+                    >
                       {product.stock}
                     </span>
                     <span className="text-xs text-slate-400 ml-1">/ {product.minStock} min</span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
+                      <button
                         onClick={() => handleOpenModal(product)}
                         className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteClick(product)}
                         className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"
                       >
@@ -182,7 +253,7 @@ export default function Inventario() {
               {filteredProducts.length === 0 && (
                 <tr>
                   <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
-                    No se encontraron productos.
+                    No se encontraron productos con ese filtro.
                   </td>
                 </tr>
               )}
@@ -191,34 +262,55 @@ export default function Inventario() {
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title={currentProduct ? "Editar Producto" : "Nuevo Producto"}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={currentProduct ? 'Editar Producto' : 'Nuevo Producto'}
       >
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-              <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Código de barras</label>
-              <input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="text"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Categoría</label>
-              <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
-                <option>Herramientas</option>
-                <option>Construcción</option>
-                <option>Pintura</option>
-                <option>Eléctrico</option>
-                <option>Plomería</option>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              >
+                {defaultCategories.map((category) => (
+                  <option key={category}>{category}</option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Precio Compra ($)</label>
-              <input required type="number" min="0" value={formData.priceBuy} onChange={e => setFormData({...formData, priceBuy: Number(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.priceBuy}
+                onChange={(e) => setFormData({ ...formData, priceBuy: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Margen Retail</label>
@@ -228,33 +320,70 @@ export default function Inventario() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Precio Venta Retail ($)</label>
-              <input required type="number" min="0" value={formData.priceRetail} onChange={e => setFormData({...formData, priceRetail: Number(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.priceRetail}
+                onChange={(e) => setFormData({ ...formData, priceRetail: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Precio Venta Mayorista ($)</label>
-              <input required type="number" min="0" value={formData.priceWholesale} onChange={e => setFormData({...formData, priceWholesale: Number(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.priceWholesale}
+                onChange={(e) =>
+                  setFormData({ ...formData, priceWholesale: Number(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Stock Actual</label>
-              <input required type="number" min="0" value={formData.stock} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Stock Mínimo</label>
-              <input required type="number" min="0" value={formData.minStock} onChange={e => setFormData({...formData, minStock: Number(e.target.value)})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <input
+                required
+                type="number"
+                min="0"
+                value={formData.minStock}
+                onChange={(e) => setFormData({ ...formData, minStock: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
             </div>
           </div>
           <div className="pt-4 flex gap-3">
-            <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors"
+            >
               Cancelar
             </button>
-            <button type="submit" className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors">
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
+            >
               Guardar
             </button>
           </div>
         </form>
       </Modal>
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
