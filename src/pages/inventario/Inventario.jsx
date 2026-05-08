@@ -22,6 +22,7 @@ export default function Inventario() {
   const [productos, setProductos] = useState(mockProductos);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [showOnlyLowStock, setShowOnlyLowStock] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const searchInputRef = useRef(null);
   const categoryMenuRef = useRef(null);
@@ -92,8 +93,9 @@ export default function Inventario() {
       product.code.includes(searchTerm);
     const matchesCategory =
       selectedCategory === 'Todas' || product.category === selectedCategory;
+    const matchesLowStock = !showOnlyLowStock || product.stock <= product.minStock;
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesLowStock;
   });
 
   const lowStockProducts = productos
@@ -406,6 +408,20 @@ export default function Inventario() {
             <span className="px-3 py-1 rounded-full bg-white border border-amber-200 text-amber-800 font-medium">
               {lowStockProducts.length} alertas activas
             </span>
+            {lowStockProducts.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowOnlyLowStock((prev) => !prev)}
+                className={cn(
+                  'px-3 py-1 rounded-full border font-medium transition-colors',
+                  showOnlyLowStock
+                    ? 'border-amber-300 bg-amber-100 text-amber-900'
+                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                )}
+              >
+                {showOnlyLowStock ? 'Mostrar toda la tabla' : 'Ver solo alertas en tabla'}
+              </button>
+            )}
           </div>
         </div>
 
