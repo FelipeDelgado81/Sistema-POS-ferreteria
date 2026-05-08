@@ -96,6 +96,10 @@ export default function Inventario() {
     return matchesSearch && matchesCategory;
   });
 
+  const lowStockProducts = productos
+    .filter((product) => product.stock <= product.minStock)
+    .sort((a, b) => (a.stock - a.minStock) - (b.stock - b.minStock));
+
   const selectedIngresoProduct = productos.find(
     (product) => product.id === Number(ingresoFormData.productId)
   );
@@ -381,6 +385,73 @@ export default function Inventario() {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-50/60">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Alertas de stock bajo</h2>
+              <p className="text-sm text-slate-600">
+                Productos que ya alcanzaron o bajaron de su stock mínimo.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm">
+            <span className="px-3 py-1 rounded-full bg-white border border-amber-200 text-amber-800 font-medium">
+              {lowStockProducts.length} alertas activas
+            </span>
+          </div>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {lowStockProducts.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-slate-500">
+              No hay productos con stock bajo en este momento.
+            </div>
+          ) : (
+            lowStockProducts.map((product) => {
+              const faltante = Math.max(product.minStock - product.stock, 0);
+
+              return (
+                <div
+                  key={product.id}
+                  className="px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-slate-900">{product.name}</p>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                        {product.category}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Código: {product.code} · Mínimo: {product.minStock} · Disponible: {product.stock}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
+                      Faltan {faltante} unidades
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenIngresoModal(product)}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <Truck className="w-4 h-4" />
+                      Reponer stock
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
