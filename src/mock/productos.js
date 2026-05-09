@@ -1,5 +1,4 @@
 export const mockProductos = [
-  // --- Herramientas ---
   {
     id: 1,
     code: '7801234567890',
@@ -19,7 +18,7 @@ export const mockProductos = [
     priceBuy: 1800,
     priceRetail: 2990,
     priceWholesale: 2500,
-    stock: 2,       // ⚠ stock bajo
+    stock: 2,      
     minStock: 10,
   },
   {
@@ -30,7 +29,7 @@ export const mockProductos = [
     priceBuy: 8500,
     priceRetail: 12990,
     priceWholesale: 11000,
-    stock: 0,       // 🔴 sin stock
+    stock: 0,       
     minStock: 3,
   },
   {
@@ -45,7 +44,6 @@ export const mockProductos = [
     minStock: 10,
   },
 
-  // --- Construcción ---
   {
     id: 5,
     code: '7801234567891',
@@ -76,7 +74,7 @@ export const mockProductos = [
     priceBuy: 1500,
     priceRetail: 2490,
     priceWholesale: 2100,
-    stock: 4,       // ⚠ stock bajo
+    stock: 4,    
     minStock: 20,
   },
   {
@@ -91,7 +89,6 @@ export const mockProductos = [
     minStock: 20,
   },
 
-  // --- Pintura ---
   {
     id: 9,
     code: '7801234567892',
@@ -100,7 +97,7 @@ export const mockProductos = [
     priceBuy: 14000,
     priceRetail: 18990,
     priceWholesale: 16500,
-    stock: 3,       // ⚠ stock bajo
+    stock: 3,      
     minStock: 10,
   },
   {
@@ -122,7 +119,7 @@ export const mockProductos = [
     priceBuy: 1200,
     priceRetail: 1990,
     priceWholesale: 1700,
-    stock: 0,       // 🔴 sin stock
+    stock: 0,    
     minStock: 15,
   },
   {
@@ -137,7 +134,6 @@ export const mockProductos = [
     minStock: 10,
   },
 
-  // --- Eléctrico ---
   {
     id: 13,
     code: '7801234567893',
@@ -157,7 +153,7 @@ export const mockProductos = [
     priceBuy: 2900,
     priceRetail: 4490,
     priceWholesale: 3900,
-    stock: 1,       // ⚠ stock bajo
+    stock: 1,    
     minStock: 10,
   },
   {
@@ -183,7 +179,6 @@ export const mockProductos = [
     minStock: 20,
   },
 
-  // --- Plomería ---
   {
     id: 17,
     code: '7801234567894',
@@ -203,7 +198,7 @@ export const mockProductos = [
     priceBuy: 3200,
     priceRetail: 4990,
     priceWholesale: 4300,
-    stock: 0,       // 🔴 sin stock
+    stock: 0,  
     minStock: 5,
   },
   {
@@ -225,7 +220,7 @@ export const mockProductos = [
     priceBuy: 350,
     priceRetail: 590,
     priceWholesale: 490,
-    stock: 7,       // ⚠ stock bajo
+    stock: 7,  
     minStock: 25,
   },
 ];
