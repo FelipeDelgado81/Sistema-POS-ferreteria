@@ -4,6 +4,7 @@ import {
   LineChart, Line
 } from 'recharts';
 import { TrendingUp, Users, Package, DollarSign } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const salesData = [
   { name: 'Lun', total: 450000 },
@@ -149,6 +150,3 @@ function StatCard({ title, value, icon: Icon, trend, trendUp, color }) {
   );
 }
 
-function cn(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
