@@ -705,21 +705,102 @@ export default function Inventario() {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Cantidad a ingresar
+              </label>
+              <input
+                required
+                type="number"
+                min="1"
+                value={ingresoFormData.quantity}
+                onChange={(e) =>
+                  setIngresoFormData({ ...ingresoFormData, quantity: Number(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Costo unitario ($)
+              </label>
+              <input
+                required
+                type="number"
+                min="0"
+                value={ingresoFormData.unitCost}
+                onChange={(e) =>
+                  setIngresoFormData({ ...ingresoFormData, unitCost: Number(e.target.value) })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                N° Factura / OC <span className="text-slate-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                value={ingresoFormData.invoiceNumber}
+                onChange={(e) =>
+                  setIngresoFormData({ ...ingresoFormData, invoiceNumber: e.target.value })
+                }
+                placeholder="Ej: F-001234"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Fecha de ingreso
+              </label>
+              <input
+                required
+                type="date"
+                value={ingresoFormData.date}
+                onChange={(e) =>
+                  setIngresoFormData({ ...ingresoFormData, date: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
-            <span className="text-slate-500">Stock actual</span>
-            <span className="font-medium text-slate-800">
-              {selectedIngresoProduct?.stock ?? 0}
-            </span>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Notas <span className="text-slate-400 font-normal">(opcional)</span>
+            </label>
+            <textarea
+              rows={2}
+              value={ingresoFormData.notes}
+              onChange={(e) =>
+                setIngresoFormData({ ...ingresoFormData, notes: e.target.value })
+              }
+              placeholder="Ej: Ingreso por rotura de stock, acordado con proveedor..."
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none resize-none"
+            />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
-            <span className="text-slate-500">Stock proyectado</span>
-            <span className="font-semibold text-emerald-700">{projectedStock}</span>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 divide-y divide-slate-200 text-sm">
+            <div className="flex justify-between px-4 py-2.5">
+              <span className="text-slate-500">Stock actual</span>
+              <span className="font-medium text-slate-800">
+                {selectedIngresoProduct?.stock ?? 0}
+              </span>
+            </div>
+            <div className="flex justify-between px-4 py-2.5">
+              <span className="text-slate-500">Stock proyectado</span>
+              <span className="font-semibold text-emerald-700">{projectedStock}</span>
+            </div>
+            <div className="flex justify-between px-4 py-2.5">
+              <span className="text-slate-500">Total compra</span>
+              <span className="font-semibold text-slate-900">{formatCurrency(ingresoTotal)}</span>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
-            <span className="text-slate-500">Total compra</span>
-            <span className="font-semibold text-slate-900">{formatCurrency(ingresoTotal)}</span>
-          </div>
+
           <div className="pt-2 flex gap-3">
             <button
               type="button"
