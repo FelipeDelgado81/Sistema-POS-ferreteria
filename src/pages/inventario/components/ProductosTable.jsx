@@ -2,6 +2,14 @@ import React, { useRef, useEffect } from 'react';
 import { Search, Filter, Edit, Trash, AlertTriangle, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Color de fila según estado de stock
+function getRowClass(product, showOnlyLowStock) {
+  if (!showOnlyLowStock) return 'hover:bg-slate-50/80 transition-colors';
+  if (product.stock === 0)              return 'bg-rose-50 hover:bg-rose-100/70 transition-colors';
+  if (product.stock <= product.minStock) return 'bg-amber-50 hover:bg-amber-100/70 transition-colors';
+  return 'hover:bg-slate-50/80 transition-colors';
+}
+
 export default function ProductosTable({
   productos,
   searchTerm,
@@ -10,7 +18,6 @@ export default function ProductosTable({
   setSelectedCategory,
   availableCategories,
   showOnlyLowStock,
-  setShowOnlyLowStock,
   isCategoryMenuOpen,
   setIsCategoryMenuOpen,
   categoryMenuRef,
@@ -40,61 +47,62 @@ export default function ProductosTable({
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative w-full sm:w-auto" ref={categoryMenuRef}>
-            <button
-              type="button"
-              onClick={() => setIsCategoryMenuOpen((prev) => !prev)}
-              className={cn(
-                'flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-white border rounded-lg transition-colors font-medium text-sm',
-                selectedCategory === 'Todas'
-                  ? 'border-slate-200 text-slate-700 hover:bg-slate-50'
-                  : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100'
-              )}
-            >
-              <Filter className="w-4 h-4" />
-              {selectedCategory === 'Todas' ? 'Categorías' : selectedCategory}
-            </button>
-
-            {isCategoryMenuOpen && (
-              <div className="absolute right-0 z-10 mt-2 w-full min-w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-                {availableCategories.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(category);
-                      setIsCategoryMenuOpen(false);
-                    }}
-                    className={cn(
-                      'w-full rounded-lg px-3 py-2 text-left text-sm transition-colors',
-                      selectedCategory === category
-                        ? 'bg-orange-50 text-orange-700'
-                        : 'text-slate-700 hover:bg-slate-50'
-                    )}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
+        <div className="relative w-full sm:w-auto" ref={categoryMenuRef}>
+          <button
+            type="button"
+            onClick={() => setIsCategoryMenuOpen((prev) => !prev)}
+            className={cn(
+              'flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-white border rounded-lg transition-colors font-medium text-sm',
+              selectedCategory === 'Todas'
+                ? 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100'
             )}
-          </div>
+          >
+            <Filter className="w-4 h-4" />
+            {selectedCategory === 'Todas' ? 'Categorías' : selectedCategory}
+          </button>
+
+          {isCategoryMenuOpen && (
+            <div className="absolute right-0 z-10 mt-2 w-full min-w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+              {availableCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setIsCategoryMenuOpen(false);
+                  }}
+                  className={cn(
+                    'w-full rounded-lg px-3 py-2 text-left text-sm transition-colors',
+                    selectedCategory === category
+                      ? 'bg-orange-50 text-orange-700'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Banner informativo cuando el filtro de alertas está activo — sin botón duplicado */}
       {showOnlyLowStock && (
-        <div className="px-4 py-3 border-b border-slate-200 bg-amber-50/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-amber-900">
-            <AlertTriangle className="w-4 h-4" />
-            <span className="font-medium">La tabla muestra solo productos con stock bajo.</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowOnlyLowStock(false)}
-            className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-amber-200 bg-white text-sm font-medium text-amber-900 hover:bg-amber-50 transition-colors"
-          >
-            Quitar filtro
-          </button>
+        <div className="px-4 py-2.5 border-b border-slate-200 bg-amber-50/60 flex items-center gap-2 text-sm text-amber-800">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>
+            Mostrando solo productos con stock bajo.{' '}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm bg-rose-200 border border-rose-300 inline-block" />
+              Sin stock
+            </span>
+            {' · '}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm bg-amber-200 border border-amber-300 inline-block" />
+              Stock bajo
+            </span>
+          </span>
         </div>
       )}
 
@@ -114,10 +122,13 @@ export default function ProductosTable({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {productos.map((product) => (
-              <tr key={product.id} className="hover:bg-slate-50/80 transition-colors group">
+              <tr key={product.id} className={getRowClass(product, showOnlyLowStock)}>
                 <td className="px-6 py-4 font-medium text-slate-900">
                   <div className="flex items-center gap-2">
-                    {product.stock <= product.minStock && (
+                    {product.stock === 0 && (
+                      <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" title="Sin stock" />
+                    )}
+                    {product.stock > 0 && product.stock <= product.minStock && (
                       <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" title="Stock bajo" />
                     )}
                     {product.name}
@@ -139,13 +150,20 @@ export default function ProductosTable({
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={cn('font-semibold', product.stock <= product.minStock ? 'text-amber-600' : 'text-emerald-600')}>
+                  <span className={cn(
+                    'font-semibold',
+                    product.stock === 0
+                      ? 'text-rose-600'
+                      : product.stock <= product.minStock
+                        ? 'text-amber-600'
+                        : 'text-emerald-600'
+                  )}>
                     {product.stock}
                   </span>
-                  <span className="text-xs text-slate-400 ml-1">/ {product.minStock} min</span>
+                  <span className="text-xs text-slate-400 ml-1">und · mín {product.minStock}</span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity group">
                     <button
                       type="button"
                       onClick={() => onIngreso(product)}
