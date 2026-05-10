@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Search, Plus, Truck, AlertTriangle, FileText, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mockProveedores } from '@/mock/proveedores';
+import { useProveedores } from './hooks/useProveedores';
 
 export default function Proveedores() {
+  const { proveedores, totalDeuda, proveedoresVencidos } = useProveedores();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredProveedores = mockProveedores.filter(p => 
+  const filteredProveedores = proveedores.filter(p => 
     p.razonSocial.toLowerCase().includes(searchTerm.toLowerCase()) || 
     p.rut.includes(searchTerm) || p.categoria.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -37,7 +38,7 @@ export default function Proveedores() {
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Total Proveedores</p>
-            <p className="text-2xl font-bold text-slate-800">48</p>
+            <p className="text-2xl font-bold text-slate-800">{proveedores.length}</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -46,7 +47,12 @@ export default function Proveedores() {
           </div>
           <div>
             <p className="text-sm text-slate-500 font-medium">Deuda Total</p>
-            <p className="text-2xl font-bold text-slate-800">$1.73M</p>
+            <p className="text-2xl font-bold text-slate-800">${totalDeuda.toLocaleString('es-CL')}</p>
+            {proveedoresVencidos > 0 && (
+              <p className="text-xs text-rose-500 font-medium mt-0.5">
+                {proveedoresVencidos} con deuda vencida
+              </p>
+            )}
           </div>
         </div>
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -54,8 +60,10 @@ export default function Proveedores() {
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-sm text-slate-500 font-medium">Facturas Pagadas Este Mes</p>
-            <p className="text-2xl font-bold text-slate-800">12</p>
+            <p className="text-sm text-slate-500 font-medium">Al día</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {proveedores.filter(p => p.estado === 'Al día').length}
+            </p>
           </div>
         </div>
       </div>
