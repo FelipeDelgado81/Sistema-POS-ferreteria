@@ -49,6 +49,14 @@ npm run dev
 
 La app se ejecuta en el puerto que indique Vite en consola.
 
+Para preparar variables locales:
+
+```bash
+cp .env.example .env.local
+```
+
+No subir archivos `.env.local` ni secretos reales al repositorio.
+
 Credenciales temporales:
 
 ```txt
