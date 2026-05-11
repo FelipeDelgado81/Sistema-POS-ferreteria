@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:web": "vite",
-    "dev:full": "vercel dev",
+    "dev:full": "npx vercel dev --local --yes",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
