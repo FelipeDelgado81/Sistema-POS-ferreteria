@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, UserPlus, CreditCard, AlertCircle, FileText } from 'lucide-react';
+import { Search, UserPlus, CreditCard, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockClientes } from '@/mock/clientes';
 

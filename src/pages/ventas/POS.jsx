@@ -8,7 +8,7 @@ export default function POS() {
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceType, setPriceType] = useState('retail'); 
-  const [discount, setDiscount] = useState({ type: 'none', value: 0 });
+  const [discount] = useState({ type: 'none', value: 0 });
   const searchInputRef = useRef(null);
 
   // Cash Payment Modal state

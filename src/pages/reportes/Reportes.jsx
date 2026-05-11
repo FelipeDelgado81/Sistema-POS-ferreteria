@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
+  PieChart, Pie, Cell
 } from 'recharts';
-import { Calendar, Download, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Download, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
 
 const mockVentasData = [
   { name: 'Ene', total: 4500000 },
