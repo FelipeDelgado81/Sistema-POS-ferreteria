@@ -1,26 +1,21 @@
-import { mockProductos } from '@/mock/productos';
-
-// Simulated delay
-const delay = (ms) => new Promise(res => setTimeout(res, ms));
+import api from './api';
 
 export const getProductos = async () => {
-  await delay(300);
-  return [...mockProductos];
+  const response = await api.get('/productos');
+  return response.data;
 };
 
 export const createProducto = async (data) => {
-  await delay(300);
-  const newProduct = { ...data, id: Date.now() };
-  return newProduct;
+  const response = await api.post('/productos', data);
+  return response.data;
 };
 
 export const updateProducto = async (id, data) => {
-  await delay(300);
-  return { ...data, id };
+  const response = await api.put(`/productos/${id}`, data);
+  return response.data;
 };
 
 export const deleteProducto = async (id) => {
-  await delay(300);
-  void id;
-  return { success: true };
+  const response = await api.delete(`/productos/${id}`);
+  return response.data;
 };

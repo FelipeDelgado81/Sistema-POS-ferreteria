@@ -11,6 +11,7 @@ export default function ProductoModal({
   setFormData,
   onSave,
   categories,
+  saving = false,
 }) {
   return (
     <Modal
@@ -133,9 +134,10 @@ export default function ProductoModal({
           </button>
           <button
             type="submit"
+            disabled={saving}
             className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
           >
-            Guardar
+            {saving ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
       </form>

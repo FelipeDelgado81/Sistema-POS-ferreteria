@@ -19,6 +19,10 @@ export default function Inventario() {
     isModalOpen, setIsModalOpen,
     isConfirmOpen, setIsConfirmOpen,
     productToDelete,
+    loading,
+    saving,
+    error,
+    reloadProductos,
     handleOpenModal,
     handleSave,
     handleDeleteClick,
@@ -86,6 +90,7 @@ export default function Inventario() {
         <button
           type="button"
           onClick={() => handleOpenModal()}
+          disabled={saving}
           className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" />
@@ -93,32 +98,55 @@ export default function Inventario() {
         </button>
       </div>
 
+      {error && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={reloadProductos}
+            className="font-medium text-rose-800 hover:text-rose-900"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {loading && (
+        <div className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-slate-500">
+          Cargando inventario...
+        </div>
+      )}
+
       {/* Barra de alertas */}
-      <StockAlertPanel
-        lowStockProducts={lowStockProducts}
-        criticalLowStockProducts={criticalLowStockProducts}
-        warningLowStockProducts={warningLowStockProducts}
-        estimatedRestockCost={estimatedRestockCost}
-        showOnlyLowStock={showOnlyLowStock}
-        setShowOnlyLowStock={setShowOnlyLowStock}
-      />
+      {!loading && (
+        <StockAlertPanel
+          lowStockProducts={lowStockProducts}
+          criticalLowStockProducts={criticalLowStockProducts}
+          warningLowStockProducts={warningLowStockProducts}
+          estimatedRestockCost={estimatedRestockCost}
+          showOnlyLowStock={showOnlyLowStock}
+          setShowOnlyLowStock={setShowOnlyLowStock}
+        />
+      )}
 
       {/* Tabla */}
-      <ProductosTable
-        productos={filteredProducts}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        availableCategories={availableCategories}
-        showOnlyLowStock={showOnlyLowStock}
-        isCategoryMenuOpen={isCategoryMenuOpen}
-        setIsCategoryMenuOpen={setIsCategoryMenuOpen}
-        categoryMenuRef={categoryMenuRef}
-        onEdit={handleOpenModal}
-        onDelete={handleDeleteClick}
-        onIngreso={handleOpenIngresoModal}
-      />
+      {!loading && (
+        <ProductosTable
+          productos={filteredProducts}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          availableCategories={availableCategories}
+          showOnlyLowStock={showOnlyLowStock}
+          isCategoryMenuOpen={isCategoryMenuOpen}
+          setIsCategoryMenuOpen={setIsCategoryMenuOpen}
+          categoryMenuRef={categoryMenuRef}
+          onEdit={handleOpenModal}
+          onDelete={handleDeleteClick}
+          onIngreso={handleOpenIngresoModal}
+        />
+      )}
 
       {/* Últimos ingresos */}
       <IngresosPanel
@@ -134,6 +162,7 @@ export default function Inventario() {
         setFormData={setFormData}
         onSave={handleSave}
         categories={DEFAULT_CATEGORIES}
+        saving={saving}
       />
 
       <IngresoModal
