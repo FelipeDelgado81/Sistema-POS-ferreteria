@@ -8,7 +8,7 @@ El proyecto esta en fase de MVP frontend. La navegacion principal, layout y pant
 
 Modulos disponibles:
 
-- Login con credenciales mock.
+- Login conectado a API propia con JWT temporal.
 - Dashboard con metricas y graficos simulados.
 - Inventario con CRUD local, filtros, alertas de stock e ingreso de mercaderia.
 - POS con carrito, busqueda, precio minorista/mayorista, pago efectivo/tarjeta simulado y calculo de vuelto.
@@ -34,6 +34,7 @@ Modulos disponibles:
 
 - Node.js compatible con Vite 8.
 - npm.
+- Vercel CLI para probar frontend + funciones serverless en local.
 
 ## Instalacion
 
@@ -43,11 +44,21 @@ npm install
 
 ## Desarrollo
 
+Solo frontend:
+
 ```bash
 npm run dev
 ```
 
 La app se ejecuta en el puerto que indique Vite en consola.
+
+Frontend + API local con Vercel Functions:
+
+```bash
+npm run dev:full
+```
+
+Usa `dev:full` para probar login real y endpoints `/api/*`.
 
 Para preparar variables locales:
 
@@ -57,14 +68,14 @@ cp .env.example .env.local
 
 No subir archivos `.env.local` ni secretos reales al repositorio.
 
-Credenciales temporales:
+Credenciales temporales de la API:
 
 ```txt
 Email: admin@ferresys.cl
 Password: admin123
 ```
 
-Estas credenciales son mock y deben reemplazarse por autenticacion real antes de produccion.
+Estas credenciales se leen desde `APP_USERS_JSON` y deben reemplazarse por autenticacion real antes de produccion.
 
 ## Scripts
 
@@ -73,6 +84,8 @@ npm run lint
 npm run test:run
 npm run build
 npm run preview
+npm run dev:web
+npm run dev:full
 ```
 
 Antes de cerrar un commit funcional se deben ejecutar:
@@ -110,7 +123,7 @@ src/
 1. Mantener lint, tests y build en verde.
 2. Documentar variables de entorno futuras en `.env.example`.
 3. Crear schema inicial de Supabase.
-4. Agregar Vercel Functions para autenticacion y productos.
+4. Probar Vercel Functions localmente con `npm run dev:full`.
 5. Conectar inventario a datos reales.
 6. Conectar POS a ventas reales con descuento de stock atomico.
 
