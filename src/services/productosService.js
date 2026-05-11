@@ -21,5 +21,6 @@ export const updateProducto = async (id, data) => {
 
 export const deleteProducto = async (id) => {
   await delay(300);
+  void id;
   return { success: true };
 };

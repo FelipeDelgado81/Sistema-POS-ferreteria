@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { TrendingUp, Users, Package, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
