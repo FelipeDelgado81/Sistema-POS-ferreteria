@@ -1,16 +1,128 @@
-# React + Vite
+# Sistema POS Ferreteria
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicacion web para gestion de una ferreteria familiar: inventario, punto de venta, clientes y fiados, proveedores, caja, reportes y dashboard.
 
-Currently, two official plugins are available:
+## Estado actual
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+El proyecto esta en fase de MVP frontend. La navegacion principal, layout y pantallas base ya existen, pero varios modulos aun trabajan con datos simulados desde `src/mock`.
 
-## React Compiler
+Modulos disponibles:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Login con credenciales mock.
+- Dashboard con metricas y graficos simulados.
+- Inventario con CRUD local, filtros, alertas de stock e ingreso de mercaderia.
+- POS con carrito, busqueda, precio minorista/mayorista, pago efectivo/tarjeta simulado y calculo de vuelto.
+- Clientes y fiados con vista de consulta simulada.
+- Proveedores con vista de consulta simulada.
+- Caja con cierre y cuadre simulado.
+- Reportes con graficos simulados.
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React 19
+- Vite 8
+- React Router DOM 7
+- TailwindCSS 4
+- Axios
+- Recharts
+- Lucide React
+- Vitest + Testing Library
+- Supabase SDK instalado para futuras integraciones
+- `@react-pdf/renderer` instalado para comprobantes PDF
+
+## Requisitos
+
+- Node.js compatible con Vite 8.
+- npm.
+
+## Instalacion
+
+```bash
+npm install
+```
+
+## Desarrollo
+
+```bash
+npm run dev
+```
+
+La app se ejecuta en el puerto que indique Vite en consola.
+
+Credenciales temporales:
+
+```txt
+Email: admin@ferresys.cl
+Password: admin123
+```
+
+Estas credenciales son mock y deben reemplazarse por autenticacion real antes de produccion.
+
+## Scripts
+
+```bash
+npm run lint
+npm run test:run
+npm run build
+npm run preview
+```
+
+Antes de cerrar un commit funcional se deben ejecutar:
+
+```bash
+npm run lint
+npm run test:run
+npm run build
+```
+
+## Estructura principal
+
+```txt
+src/
+  components/
+    layout/
+    shared/
+  hooks/
+  mock/
+  pages/
+    auth/
+    caja/
+    clientes/
+    dashboard/
+    inventario/
+    proveedores/
+    reportes/
+    ventas/
+  services/
+  test/
+```
+
+## Proximos hitos
+
+1. Mantener lint, tests y build en verde.
+2. Documentar variables de entorno futuras en `.env.example`.
+3. Crear schema inicial de Supabase.
+4. Agregar Vercel Functions para autenticacion y productos.
+5. Conectar inventario a datos reales.
+6. Conectar POS a ventas reales con descuento de stock atomico.
+
+## Alcance del MVP
+
+Incluido:
+
+- Una ferreteria.
+- Inventario.
+- POS.
+- Clientes y fiados.
+- Proveedores.
+- Caja.
+- Reportes.
+- Comprobante interno no tributario.
+
+Excluido por ahora:
+
+- Facturacion electronica SII.
+- Multi-sucursal.
+- App movil nativa.
+- E-commerce.
+- SaaS multi-tenant.
