@@ -1,9 +1,19 @@
-import React from 'react';
-import { 
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { TrendingUp, Users, Package, DollarSign } from 'lucide-react';
+import { TrendingUp, Users, Package, DollarSign, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+type DashColor = 'blue' | 'orange' | 'green' | 'purple';
+
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: LucideIcon;
+  trend: string;
+  trendUp: boolean;
+  color: DashColor;
+}
 
 const salesData = [
   { name: 'Lun', total: 450000 },
@@ -76,7 +86,7 @@ export default function Dashboard() {
                 <Tooltip 
                   cursor={{fill: '#f1f5f9'}}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value) => [`$${value.toLocaleString('es-CL')}`, 'Ventas']}
+                  formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
                 />
                 <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -121,8 +131,8 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, trend, trendUp, color }) {
-  const colorMap = {
+function StatCard({ title, value, icon: Icon, trend, trendUp, color }: StatCardProps) {
+  const colorMap: Record<DashColor, string> = {
     blue: "bg-blue-50 text-blue-600",
     orange: "bg-orange-50 text-orange-600",
     green: "bg-green-50 text-green-600",

@@ -1,4 +1,6 @@
-export const mockProductos = [
+import type { Producto } from '@/types';
+
+const rawProductos = [
   {
     id: 1,
     code: '7801234567890',
@@ -220,7 +222,16 @@ export const mockProductos = [
     priceBuy: 350,
     priceRetail: 590,
     priceWholesale: 490,
-    stock: 7,  
+    stock: 7,
     minStock: 25,
   },
 ];
+
+export const mockProductos: Producto[] = rawProductos.map((p) => ({
+  ...p,
+  id: String(p.id),
+  description: '',
+  categoryId: null,
+  proveedorId: null,
+  active: true,
+}));

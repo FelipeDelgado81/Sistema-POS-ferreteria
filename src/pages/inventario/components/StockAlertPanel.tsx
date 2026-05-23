@@ -1,8 +1,17 @@
-import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Producto } from '@/types';
 
-const formatCurrency = (v) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+const formatCurrency = (v: number) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+
+interface StockAlertPanelProps {
+  lowStockProducts: Producto[];
+  criticalLowStockProducts: Producto[];
+  warningLowStockProducts: Producto[];
+  estimatedRestockCost: number;
+  showOnlyLowStock: boolean;
+  setShowOnlyLowStock: (fn: (prev: boolean) => boolean) => void;
+}
 
 export default function StockAlertPanel({
   lowStockProducts,
@@ -11,7 +20,7 @@ export default function StockAlertPanel({
   estimatedRestockCost,
   showOnlyLowStock,
   setShowOnlyLowStock,
-}) {
+}: StockAlertPanelProps) {
   if (lowStockProducts.length === 0) return null;
 
   return (

@@ -1,13 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useIngreso } from '@/pages/inventario/hooks/useIngreso';
 import { mockProductos } from '@/mock/productos';
+import type { Producto } from '@/types';
+import type { Dispatch, SetStateAction } from 'react';
 
-function setup(productosOverride) {
+function setup(productosOverride?: Producto[]) {
   const productos = productosOverride ?? [...mockProductos];
-  const setProductos = vi.fn((updater) => {
+  const setProductos = vi.fn((updater: SetStateAction<Producto[]>) => {
     if (typeof updater === 'function') updater(productos);
-  });
+  }) as unknown as Dispatch<SetStateAction<Producto[]>>;
   return renderHook(() => useIngreso(productos, setProductos));
 }
 

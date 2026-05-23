@@ -1,9 +1,21 @@
-import React from 'react';
 import Modal from './Modal';
 import { AlertTriangle } from 'lucide-react';
 
-export default function ConfirmDialog({isOpen, onClose, onConfirm, title, description, message, confirmText = 'Confirmar', cancelText = 'Cancelar',
-}) {
+interface ConfirmDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description?: string;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+export default function ConfirmDialog({
+  isOpen, onClose, onConfirm, title, description, message,
+  confirmText = 'Confirmar', cancelText = 'Cancelar',
+}: ConfirmDialogProps) {
   const texto = description ?? message;
 
   return (

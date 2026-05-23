@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { mockProveedores } from '@/mock/proveedores';
+import type { Producto, IngresoForm, IngresoRecord } from '@/types';
 
 const getCurrentDate = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 };
 
-function buildIngresoForm(productos, productId = null) {
+function buildIngresoForm(productos: Producto[], productId: string | number | null = null): IngresoForm {
   const product =
-    productos.find((p) => p.id === Number(productId)) ?? productos[0];
+    productos.find((p) => p.id === String(productId)) ?? productos[0];
 
   return {
     proveedorId:   mockProveedores[0]?.id ?? '',
@@ -21,15 +22,18 @@ function buildIngresoForm(productos, productId = null) {
   };
 }
 
-export function useIngreso(productos, setProductos) {
-  const [ingresos, setIngresos]                   = useState([]);
+export function useIngreso(
+  productos: Producto[],
+  setProductos: Dispatch<SetStateAction<Producto[]>>,
+) {
+  const [ingresos, setIngresos]                     = useState<IngresoRecord[]>([]);
   const [isIngresoModalOpen, setIsIngresoModalOpen] = useState(false);
-  const [ingresoFormData, setIngresoFormData]       = useState(() =>
+  const [ingresoFormData, setIngresoFormData]       = useState<IngresoForm>(() =>
     buildIngresoForm(productos)
   );
 
   const selectedIngresoProduct = productos.find(
-    (p) => p.id === Number(ingresoFormData.productId)
+    (p) => p.id === String(ingresoFormData.productId)
   );
   const selectedIngresoSupplier = mockProveedores.find(
     (s) => s.id === Number(ingresoFormData.proveedorId)
@@ -39,13 +43,13 @@ export function useIngreso(productos, setProductos) {
   const projectedStock  = (selectedIngresoProduct?.stock ?? 0) + ingresoQuantity;
   const ingresoTotal    = ingresoQuantity * ingresoUnitCost;
 
-  const handleOpenIngresoModal = (product = null) => {
-    setIngresoFormData(buildIngresoForm(productos, product?.id));
+  const handleOpenIngresoModal = (product: Producto | null = null) => {
+    setIngresoFormData(buildIngresoForm(productos, product?.id ?? null));
     setIsIngresoModalOpen(true);
   };
 
-  const handleIngresoProductChange = (productId) => {
-    const next = productos.find((p) => p.id === Number(productId));
+  const handleIngresoProductChange = (productId: string) => {
+    const next = productos.find((p) => p.id === productId);
     setIngresoFormData((prev) => ({
       ...prev,
       productId,
@@ -53,11 +57,11 @@ export function useIngreso(productos, setProductos) {
     }));
   };
 
-  const handleSaveIngreso = (e) => {
+  const handleSaveIngreso = (e: { preventDefault(): void }) => {
     e.preventDefault();
     if (!selectedIngresoProduct || !selectedIngresoSupplier || ingresoQuantity <= 0) return;
 
-    const record = {
+    const record: IngresoRecord = {
       id:              Date.now(),
       proveedorId:     selectedIngresoSupplier.id,
       proveedorNombre: selectedIngresoSupplier.razonSocial,
@@ -71,7 +75,6 @@ export function useIngreso(productos, setProductos) {
       notes:           ingresoFormData.notes.trim(),
     };
 
-    // actualizar stock del producto y precio de compra
     setProductos((prev) =>
       prev.map((p) =>
         p.id === selectedIngresoProduct.id
@@ -91,15 +94,15 @@ export function useIngreso(productos, setProductos) {
     setIngresoFormData,
     isIngresoModalOpen,
     setIsIngresoModalOpen,
-    
+
     selectedIngresoProduct,
     projectedStock,
     ingresoTotal,
-    
+
     handleOpenIngresoModal,
     handleIngresoProductChange,
     handleSaveIngreso,
-    
+
     mockProveedores,
   };
 }

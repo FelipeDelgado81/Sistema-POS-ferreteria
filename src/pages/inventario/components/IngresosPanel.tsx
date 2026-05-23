@@ -1,8 +1,13 @@
-import React from 'react';
+import type { IngresoRecord } from '@/types';
 
-const formatCurrency = (v) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+const formatCurrency = (v: number) => `$${Number(v || 0).toLocaleString('es-CL')}`;
 
-export default function IngresosPanel({ ingresos, onOpenIngreso }) {
+interface IngresosPanelProps {
+  ingresos: IngresoRecord[];
+  onOpenIngreso: () => void;
+}
+
+export default function IngresosPanel({ ingresos, onOpenIngreso }: IngresosPanelProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200">
       <div className="p-4 border-b border-slate-200 flex items-center justify-between">

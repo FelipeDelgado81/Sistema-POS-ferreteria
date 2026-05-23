@@ -1,7 +1,17 @@
-import React from 'react';
 import Modal from '@/components/shared/Modal';
+import type { Producto, ProductoForm } from '@/types';
 
-const formatCurrency = (v) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+const formatCurrency = (v: number) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+
+interface ProductoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentProduct: Producto | null;
+  formData: ProductoForm;
+  setFormData: (data: ProductoForm) => void;
+  onSave: (e: { preventDefault(): void }) => void;
+  categories: readonly string[];
+}
 
 export default function ProductoModal({
   isOpen,
@@ -11,7 +21,7 @@ export default function ProductoModal({
   setFormData,
   onSave,
   categories,
-}) {
+}: ProductoModalProps) {
   return (
     <Modal
       isOpen={isOpen}

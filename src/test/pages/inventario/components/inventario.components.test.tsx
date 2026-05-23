@@ -178,7 +178,7 @@ describe('ProductosTable', () => {
         })}
       />
     );
-    const fila = container.querySelector('tbody tr');
+    const fila = container.querySelector('tbody tr')!;
     expect(fila.className).toMatch(/bg-rose-50/);
   });
 
@@ -194,7 +194,7 @@ describe('ProductosTable', () => {
         })}
       />
     );
-    const fila = container.querySelector('tbody tr');
+    const fila = container.querySelector('tbody tr')!;
     expect(fila.className).toMatch(/bg-amber-50/);
   });
 
@@ -205,7 +205,7 @@ describe('ProductosTable', () => {
         {...tableProps({ productos: [normal], showOnlyLowStock: false })}
       />
     );
-    const fila = container.querySelector('tbody tr');
+    const fila = container.querySelector('tbody tr')!;
     expect(fila.className).not.toMatch(/bg-rose/);
     expect(fila.className).not.toMatch(/bg-amber/);
   });

@@ -1,7 +1,27 @@
-import React from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import Modal from '@/components/shared/Modal';
+import type { Producto, IngresoForm } from '@/types';
 
-const formatCurrency = (v) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+const formatCurrency = (v: number) => `$${Number(v || 0).toLocaleString('es-CL')}`;
+
+interface MockProveedor {
+  id: number | string;
+  razonSocial: string;
+}
+
+interface IngresoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  ingresoFormData: IngresoForm;
+  setIngresoFormData: Dispatch<SetStateAction<IngresoForm>>;
+  productos: Producto[];
+  mockProveedores: MockProveedor[];
+  handleIngresoProductChange: (productId: string) => void;
+  handleSaveIngreso: (e: { preventDefault(): void }) => void;
+  selectedIngresoProduct: Producto | undefined;
+  projectedStock: number;
+  ingresoTotal: number;
+}
 
 export default function IngresoModal({
   isOpen,
@@ -15,7 +35,7 @@ export default function IngresoModal({
   selectedIngresoProduct,
   projectedStock,
   ingresoTotal,
-}) {
+}: IngresoModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Ingreso de Mercadería">
       <form onSubmit={handleSaveIngreso} className="space-y-4">
@@ -41,7 +61,7 @@ export default function IngresoModal({
             <select
               required
               value={ingresoFormData.productId}
-              onChange={(e) => handleIngresoProductChange(Number(e.target.value))}
+              onChange={(e) => handleIngresoProductChange(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
             >
               {productos.map((p) => (

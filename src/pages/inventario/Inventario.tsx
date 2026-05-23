@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 
@@ -43,11 +43,11 @@ export default function Inventario() {
   const [selectedCategory, setSelectedCategory]     = useState('Todas');
   const [showOnlyLowStock, setShowOnlyLowStock]     = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const categoryMenuRef = useRef(null);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target as Node)) {
         setIsCategoryMenuOpen(false);
       }
     };

@@ -1,31 +1,38 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect, type RefObject, type Dispatch, type SetStateAction } from 'react';
 import { Search, Filter, Edit, Trash, AlertTriangle, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Producto } from '@/types';
 
-// Color de fila según estado de stock
-function getRowClass(product, showOnlyLowStock) {
+function getRowClass(product: Producto, showOnlyLowStock: boolean): string {
   if (!showOnlyLowStock) return 'hover:bg-slate-50/80 transition-colors';
-  if (product.stock === 0)              return 'bg-rose-50 hover:bg-rose-100/70 transition-colors';
+  if (product.stock === 0)               return 'bg-rose-50 hover:bg-rose-100/70 transition-colors';
   if (product.stock <= product.minStock) return 'bg-amber-50 hover:bg-amber-100/70 transition-colors';
   return 'hover:bg-slate-50/80 transition-colors';
 }
 
+interface ProductosTableProps {
+  productos: Producto[];
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  selectedCategory: string;
+  setSelectedCategory: (v: string) => void;
+  availableCategories: string[];
+  showOnlyLowStock: boolean;
+  isCategoryMenuOpen: boolean;
+  setIsCategoryMenuOpen: Dispatch<SetStateAction<boolean>>;
+  categoryMenuRef: RefObject<HTMLDivElement | null>;
+  onEdit: (p: Producto) => void;
+  onDelete: (p: Producto) => void;
+  onIngreso: (p: Producto) => void;
+}
+
 export default function ProductosTable({
-  productos,
-  searchTerm,
-  setSearchTerm,
-  selectedCategory,
-  setSelectedCategory,
-  availableCategories,
-  showOnlyLowStock,
-  isCategoryMenuOpen,
-  setIsCategoryMenuOpen,
-  categoryMenuRef,
-  onEdit,
-  onDelete,
-  onIngreso,
-}) {
-  const searchInputRef = useRef(null);
+  productos, searchTerm, setSearchTerm,
+  selectedCategory, setSelectedCategory, availableCategories,
+  showOnlyLowStock, isCategoryMenuOpen, setIsCategoryMenuOpen, categoryMenuRef,
+  onEdit, onDelete, onIngreso,
+}: ProductosTableProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     searchInputRef.current?.focus();
@@ -126,10 +133,10 @@ export default function ProductosTable({
                 <td className="px-6 py-4 font-medium text-slate-900">
                   <div className="flex items-center gap-2">
                     {product.stock === 0 && (
-                      <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" title="Sin stock" />
+                      <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" aria-label="Sin stock" />
                     )}
                     {product.stock > 0 && product.stock <= product.minStock && (
-                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" title="Stock bajo" />
+                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" aria-label="Stock bajo" />
                     )}
                     {product.name}
                   </div>
@@ -194,7 +201,7 @@ export default function ProductosTable({
             ))}
             {productos.length === 0 && (
               <tr>
-                <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                   {showOnlyLowStock
                     ? 'No hay productos con stock bajo para este filtro.'
                     : 'No se encontraron productos con ese filtro.'}

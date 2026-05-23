@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
-import { 
+import { useState } from 'react';
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { Download, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
+import { Download, TrendingUp, DollarSign, Package, Users, type LucideIcon } from 'lucide-react';
+
+type ReportColor = 'blue' | 'emerald' | 'rose' | 'purple';
+
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: LucideIcon;
+  color: ReportColor;
+}
 
 const mockVentasData = [
   { name: 'Ene', total: 4500000 },
@@ -77,7 +86,7 @@ export default function Reportes() {
                 <RechartsTooltip 
                   cursor={{fill: '#f1f5f9'}}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value) => [`$${value.toLocaleString('es-CL')}`, 'Ingresos']}
+                  formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
                 />
                 <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -121,8 +130,8 @@ export default function Reportes() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }) {
-  const colorMap = {
+function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
+  const colorMap: Record<ReportColor, string> = {
     blue: "bg-blue-50 text-blue-600",
     emerald: "bg-emerald-50 text-emerald-600",
     rose: "bg-rose-50 text-rose-600",
