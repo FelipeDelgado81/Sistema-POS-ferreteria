@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, Truck, Wallet, FileBarChart, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Receipt, Users, Truck, Wallet, FileBarChart, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
   { icon: Package, label: 'Inventario', href: '/inventario' },
   { icon: ShoppingCart, label: 'Punto de Venta', href: '/ventas' },
+  { icon: Receipt, label: 'Historial de Ventas', href: '/historial' },
   { icon: Users, label: 'Clientes y Fiados', href: '/clientes' },
   { icon: Truck, label: 'Proveedores', href: '/proveedores' },
   { icon: Wallet, label: 'Caja', href: '/caja' },

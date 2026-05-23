@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout';
 import Dashboard from './pages/dashboard/Dashboard';
 import Inventario from './pages/inventario/Inventario';
 import POS from './pages/ventas/POS';
+import Historial from './pages/ventas/Historial';
 import Clientes from './pages/clientes/Clientes';
 import Proveedores from './pages/proveedores/Proveedores';
 import Caja from './pages/caja/Caja';
@@ -32,6 +33,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="inventario" element={<Inventario />} />
         <Route path="ventas" element={<POS />} />
+        <Route path="historial" element={<Historial />} />
         <Route path="clientes" element={<Clientes />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="caja" element={<Caja />} />

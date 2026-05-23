@@ -6,6 +6,7 @@ import { getSupabaseAdmin, unwrapSupabaseResult } from '../lib/supabase';
 const router = Router();
 
 type Payload = Record<string, any>;
+type Row = Record<string, any>;
 
 function validateVentaPayload(payload: Payload): void {
   if (!Array.isArray(payload.items) || payload.items.length === 0) {
@@ -53,6 +54,149 @@ router.post(
     );
 
     res.status(201).json({ id: ventaId });
+  }),
+);
+
+const VENTA_LIST_SELECT = `
+  id,
+  fecha,
+  subtotal,
+  descuento_monto,
+  total,
+  medio_pago,
+  estado,
+  numero_dte,
+  clientes(razon_social)
+`;
+
+const VENTA_DETALLE_SELECT = `
+  id,
+  fecha,
+  subtotal,
+  descuento_tipo,
+  descuento_valor,
+  descuento_monto,
+  total,
+  medio_pago,
+  estado,
+  monto_recibido,
+  vuelto,
+  numero_dte,
+  clientes(razon_social, rut),
+  detalle_ventas(
+    producto_id,
+    cantidad,
+    precio_unitario,
+    total,
+    productos(nombre, codigo_barra)
+  )
+`;
+
+function relacionUno(value: unknown): Row | null {
+  if (Array.isArray(value)) return (value[0] as Row) ?? null;
+  return (value as Row) ?? null;
+}
+
+function mapVentaListFromDb(row: Row) {
+  const cliente = relacionUno(row.clientes);
+  return {
+    id: row.id,
+    fecha: row.fecha,
+    clienteNombre: cliente?.razon_social ?? null,
+    subtotal: Number(row.subtotal),
+    descuentoMonto: Number(row.descuento_monto),
+    total: Number(row.total),
+    medioPago: row.medio_pago,
+    estado: row.estado,
+    numeroDte: row.numero_dte ?? null,
+  };
+}
+
+function mapVentaDetalleFromDb(row: Row) {
+  const cliente = relacionUno(row.clientes);
+  const items = (row.detalle_ventas || []).map((d: Row) => {
+    const producto = relacionUno(d.productos);
+    return {
+      productoId: d.producto_id,
+      productoNombre: producto?.nombre ?? 'Producto eliminado',
+      codigo: producto?.codigo_barra ?? '',
+      cantidad: d.cantidad,
+      precioUnitario: Number(d.precio_unitario),
+      total: Number(d.total),
+    };
+  });
+
+  return {
+    ...mapVentaListFromDb(row),
+    clienteRut: cliente?.rut ?? null,
+    descuentoTipo: row.descuento_tipo,
+    descuentoValor: Number(row.descuento_valor),
+    montoRecibido: row.monto_recibido != null ? Number(row.monto_recibido) : null,
+    vuelto: row.vuelto != null ? Number(row.vuelto) : null,
+    items,
+  };
+}
+
+router.get(
+  '/',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { desde, hasta, medioPago, estado } = req.query as Record<string, string>;
+
+    let query = getSupabaseAdmin()
+      .from('ventas')
+      .select(VENTA_LIST_SELECT)
+      .order('fecha', { ascending: false })
+      .limit(200);
+
+    if (desde) query = query.gte('fecha', desde);
+    if (hasta) query = query.lte('fecha', `${hasta}T23:59:59.999`);
+    if (medioPago) query = query.eq('medio_pago', medioPago);
+    if (estado) query = query.eq('estado', estado);
+
+    const ventas = unwrapSupabaseResult(await query) as Row[];
+    res.status(200).json(ventas.map(mapVentaListFromDb));
+  }),
+);
+
+router.get(
+  '/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const venta = unwrapSupabaseResult(
+      await getSupabaseAdmin()
+        .from('ventas')
+        .select(VENTA_DETALLE_SELECT)
+        .eq('id', req.params.id)
+        .single(),
+    ) as Row;
+
+    res.status(200).json(mapVentaDetalleFromDb(venta));
+  }),
+);
+
+router.post(
+  '/:id/anular',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const motivo = String(req.body?.motivo || '').trim() || null;
+
+    unwrapSupabaseResult(
+      await getSupabaseAdmin().rpc('anular_venta', {
+        p_venta_id: req.params.id,
+        p_motivo: motivo,
+      }),
+    );
+
+    const venta = unwrapSupabaseResult(
+      await getSupabaseAdmin()
+        .from('ventas')
+        .select(VENTA_DETALLE_SELECT)
+        .eq('id', req.params.id)
+        .single(),
+    ) as Row;
+
+    res.status(200).json(mapVentaDetalleFromDb(venta));
   }),
 );
 

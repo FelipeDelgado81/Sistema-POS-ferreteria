@@ -36,4 +36,11 @@ describe('api handlers', () => {
     expect(res.status).toBe(401);
     expect(res.body.error).toBe('Token requerido');
   });
+
+  it('GET /api/ventas sin token responde 401', async () => {
+    const res = await request(app).get('/api/ventas');
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe('Token requerido');
+  });
 });

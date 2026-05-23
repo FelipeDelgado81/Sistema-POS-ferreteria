@@ -65,6 +65,45 @@ export interface VentaResult {
   id: string;
 }
 
+export type VentaEstado = 'completada' | 'anulada';
+
+export interface VentaListItem {
+  id: string;
+  fecha: string;
+  clienteNombre: string | null;
+  subtotal: number;
+  descuentoMonto: number;
+  total: number;
+  medioPago: MedioPago;
+  estado: VentaEstado;
+  numeroDte: string | null;
+}
+
+export interface VentaDetalleItem {
+  productoId: string;
+  productoNombre: string;
+  codigo: string;
+  cantidad: number;
+  precioUnitario: number;
+  total: number;
+}
+
+export interface VentaDetalle extends VentaListItem {
+  clienteRut: string | null;
+  descuentoTipo: DescuentoTipo;
+  descuentoValor: number;
+  montoRecibido: number | null;
+  vuelto: number | null;
+  items: VentaDetalleItem[];
+}
+
+export interface VentasFiltros {
+  desde?: string;
+  hasta?: string;
+  medioPago?: MedioPago | '';
+  estado?: VentaEstado | '';
+}
+
 export interface CartItem extends Producto {
   quantity: number;
 }
