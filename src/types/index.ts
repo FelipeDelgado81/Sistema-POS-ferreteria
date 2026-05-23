@@ -136,3 +136,54 @@ export interface IngresoForm {
   date: string;
   notes: string;
 }
+
+// Caja
+export type CajaEstado = 'abierta' | 'cerrada';
+export type MovimientoCajaTipo = 'ingreso' | 'retiro';
+export type CajaLineaTipo =
+  | 'apertura'
+  | 'venta_efectivo'
+  | 'venta_tarjeta'
+  | 'venta_fiado'
+  | 'ingreso'
+  | 'retiro';
+
+export interface CajaLinea {
+  hora: string;
+  tipo: CajaLineaTipo;
+  descripcion: string;
+  monto: number;
+  usuario: string;
+}
+
+export interface CajaActual {
+  id: string;
+  fecha: string;
+  estado: CajaEstado;
+  fondoInicial: number;
+  ventasEfectivo: number;
+  ventasTarjeta: number;
+  ventasFiado: number;
+  ingresos: number;
+  retiros: number;
+  efectivoEsperado: number;
+  efectivoFisico: number | null;
+  diferencia: number | null;
+  abiertaAt: string;
+  cerradaAt: string | null;
+  lineas: CajaLinea[];
+}
+
+export interface AbrirCajaForm {
+  fondoInicial: number;
+}
+
+export interface MovimientoCajaForm {
+  tipo: MovimientoCajaTipo;
+  monto: number;
+  descripcion: string;
+}
+
+export interface CerrarCajaForm {
+  efectivoFisico: number;
+}

@@ -136,6 +136,16 @@ create table if not exists caja_diaria (
   closed_at timestamptz
 );
 
+create table if not exists movimientos_caja (
+  id uuid primary key default gen_random_uuid(),
+  caja_id uuid not null references caja_diaria(id) on delete cascade,
+  tipo text not null check (tipo in ('ingreso', 'retiro')),
+  monto numeric(12, 2) not null check (monto > 0),
+  descripcion text,
+  usuario text,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists devoluciones (
   id uuid primary key default gen_random_uuid(),
   venta_id uuid not null references ventas(id) on delete cascade,
@@ -162,6 +172,7 @@ create index if not exists idx_historial_precios_compra_producto_id on historial
 create index if not exists idx_historial_precios_compra_proveedor_id on historial_precios_compra(proveedor_id);
 create index if not exists idx_ventas_cliente_id on ventas(cliente_id);
 create index if not exists idx_caja_diaria_fecha on caja_diaria(fecha);
+create index if not exists idx_movimientos_caja_caja_id on movimientos_caja(caja_id);
 
 alter table categorias enable row level security;
 alter table proveedores enable row level security;
@@ -175,6 +186,7 @@ alter table detalle_compras enable row level security;
 alter table fiados enable row level security;
 alter table abonos_fiados enable row level security;
 alter table caja_diaria enable row level security;
+alter table movimientos_caja enable row level security;
 alter table devoluciones enable row level security;
 
 create or replace function set_updated_at()

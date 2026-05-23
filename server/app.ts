@@ -7,6 +7,7 @@ import productosRouter from './routes/productos';
 import clientesRouter from './routes/clientes';
 import proveedoresRouter from './routes/proveedores';
 import ventasRouter from './routes/ventas';
+import cajaRouter from './routes/caja';
 
 export function createApp(): Express {
   const app = express();
@@ -20,6 +21,7 @@ export function createApp(): Express {
   app.use('/api/clientes', clientesRouter);
   app.use('/api/proveedores', proveedoresRouter);
   app.use('/api/ventas', ventasRouter);
+  app.use('/api/caja', cajaRouter);
 
   app.use(errorHandler);
 
