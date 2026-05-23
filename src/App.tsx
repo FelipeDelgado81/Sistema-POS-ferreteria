@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ReactNode } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/dashboard/Dashboard';
@@ -11,8 +11,15 @@ import Reportes from './pages/reportes/Reportes';
 import Login from './pages/auth/Login';
 import { useAuth } from './hooks/useAuth';
 
-function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+function PrivateRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-8 h-8 border-2 border-slate-300 border-t-orange-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
