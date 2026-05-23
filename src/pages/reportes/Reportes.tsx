@@ -30,7 +30,7 @@ const mockCategoryData = [
   { name: 'Eléctrico', value: 10 },
 ];
 
-const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6'];
+const COLORS = ['#0057B8', '#003B7A', '#E31B23', '#6B7280'];
 
 export default function Reportes() {
   const [periodo, setPeriodo] = useState('Este Mes');
@@ -88,7 +88,7 @@ export default function Reportes() {
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
                 />
-                <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total" fill="#0057B8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

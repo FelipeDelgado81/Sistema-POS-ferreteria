@@ -88,7 +88,7 @@ export default function Dashboard() {
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
                 />
-                <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total" fill="#0057B8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -158,4 +158,3 @@ function StatCard({ title, value, icon: Icon, trend, trendUp, color }: StatCardP
     </div>
   );
 }
-
