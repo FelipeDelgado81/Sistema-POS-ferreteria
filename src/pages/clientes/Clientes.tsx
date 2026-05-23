@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Search, UserPlus, CreditCard, AlertCircle, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ClienteForm } from '@/types';
+import type { Cliente } from '@/types';
 import { useClientesQuery, useCreateCliente } from '@/hooks/queries/useClientesQuery';
 import Modal from '@/components/shared/Modal';
+import FiadoDetalleModal from './components/FiadoDetalleModal';
 
 const emptyForm: ClienteForm = {
   razonSocial: '',
@@ -21,6 +23,7 @@ export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<ClienteForm>(emptyForm);
+  const [detalleCliente, setDetalleCliente] = useState<Cliente | null>(null);
 
   const filteredClientes = clientes.filter(
     (c) =>
@@ -173,7 +176,10 @@ export default function Clientes() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-orange-600 hover:text-orange-800 font-medium text-sm transition-colors">
+                        <button
+                          onClick={() => setDetalleCliente(cliente)}
+                          className="text-orange-600 hover:text-orange-800 font-medium text-sm transition-colors"
+                        >
                           Ver Detalle
                         </button>
                       </td>
@@ -278,6 +284,10 @@ export default function Clientes() {
           </div>
         </form>
       </Modal>
+
+      {detalleCliente && (
+        <FiadoDetalleModal cliente={detalleCliente} onClose={() => setDetalleCliente(null)} />
+      )}
     </div>
   );
 }

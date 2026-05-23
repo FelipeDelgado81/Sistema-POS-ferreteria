@@ -33,6 +33,31 @@ export interface Cliente {
   createdAt: string;
 }
 
+export type FiadoEstado = 'pendiente' | 'pagado' | 'anulado';
+
+export interface AbonoFiado {
+  id: string;
+  monto: number;
+  fecha: string;
+  notas: string | null;
+}
+
+export interface Fiado {
+  id: string;
+  ventaId: string | null;
+  clienteId: string;
+  montoOriginal: number | null;
+  saldoPendiente: number;
+  estado: FiadoEstado;
+  fecha: string;
+  abonos: AbonoFiado[];
+}
+
+export interface AbonoForm {
+  monto: number;
+  notas?: string;
+}
+
 export interface Proveedor {
   id: string;
   rut: string;
