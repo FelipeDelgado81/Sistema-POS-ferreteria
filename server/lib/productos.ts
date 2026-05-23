@@ -1,7 +1,27 @@
-import { createHttpError } from './http.js';
-import { unwrapSupabaseResult } from './supabase.js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createHttpError } from './http';
+import { unwrapSupabaseResult } from './supabase';
 
-export function mapProductoFromDb(row) {
+type Row = Record<string, any>;
+type Payload = Record<string, any>;
+
+export const PRODUCTOS_SELECT = `
+  id,
+  codigo_barra,
+  nombre,
+  descripcion,
+  categoria_id,
+  proveedor_id,
+  precio_compra,
+  precio_venta_minorista,
+  precio_venta_mayorista,
+  stock,
+  stock_minimo,
+  activo,
+  categorias(nombre)
+`;
+
+export function mapProductoFromDb(row: Row) {
   return {
     id: row.id,
     code: row.codigo_barra,
@@ -19,8 +39,8 @@ export function mapProductoFromDb(row) {
   };
 }
 
-export function validateProductoPayload(payload) {
-  const requiredFields = [
+export function validateProductoPayload(payload: Payload): void {
+  const requiredFields: [string, string][] = [
     ['code', 'codigo de barras'],
     ['name', 'nombre'],
   ];
@@ -44,24 +64,24 @@ export function validateProductoPayload(payload) {
   }
 }
 
-export async function resolveCategoriaId(supabase, payload) {
+async function resolveCategoriaId(supabase: SupabaseClient, payload: Payload): Promise<string> {
   if (payload.categoryId) return payload.categoryId;
 
   const categoryName = String(payload.category || '').trim();
   const existing = unwrapSupabaseResult(
-    await supabase.from('categorias').select('id').eq('nombre', categoryName).maybeSingle()
-  );
+    await supabase.from('categorias').select('id').eq('nombre', categoryName).maybeSingle(),
+  ) as Row | null;
 
   if (existing?.id) return existing.id;
 
   const created = unwrapSupabaseResult(
-    await supabase.from('categorias').insert({ nombre: categoryName }).select('id').single()
-  );
+    await supabase.from('categorias').insert({ nombre: categoryName }).select('id').single(),
+  ) as Row;
 
   return created.id;
 }
 
-export async function mapProductoToDb(supabase, payload) {
+export async function mapProductoToDb(supabase: SupabaseClient, payload: Payload) {
   validateProductoPayload(payload);
 
   return {
