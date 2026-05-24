@@ -4,6 +4,8 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { Download, TrendingUp, DollarSign, Package, Users, type LucideIcon } from 'lucide-react';
+import type { ReportePeriodo } from '@/types';
+import { useReportesQuery } from '@/hooks/queries/useReportesQuery';
 
 type ReportColor = 'blue' | 'emerald' | 'rose' | 'purple';
 
@@ -14,26 +16,37 @@ interface StatCardProps {
   color: ReportColor;
 }
 
-const mockVentasData = [
-  { name: 'Ene', total: 4500000 },
-  { name: 'Feb', total: 5200000 },
-  { name: 'Mar', total: 4800000 },
-  { name: 'Abr', total: 6100000 },
-  { name: 'May', total: 7500000 },
-  { name: 'Jun', total: 6800000 },
+const PERIODOS: { value: ReportePeriodo; label: string }[] = [
+  { value: 'hoy', label: 'Hoy' },
+  { value: 'semana', label: 'Esta Semana' },
+  { value: 'mes', label: 'Este Mes' },
+  { value: 'trimestre', label: 'Últimos 3 Meses' },
+  { value: 'anio', label: 'Este Año' },
 ];
 
-const mockCategoryData = [
-  { name: 'Herramientas', value: 35 },
-  { name: 'Construcción', value: 40 },
-  { name: 'Pintura', value: 15 },
-  { name: 'Eléctrico', value: 10 },
-];
+const COLORS = ['#0057B8', '#003B7A', '#E31B23', '#6B7280', '#F59E0B', '#10B981'];
 
-const COLORS = ['#0057B8', '#003B7A', '#E31B23', '#6B7280'];
+const formatCurrency = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
 export default function Reportes() {
-  const [periodo, setPeriodo] = useState('Este Mes');
+  const [periodo, setPeriodo] = useState<ReportePeriodo>('mes');
+  const [exportando, setExportando] = useState(false);
+  const { data, isLoading, isError } = useReportesQuery(periodo);
+
+  const periodoLabel = PERIODOS.find((p) => p.value === periodo)?.label ?? 'Este Mes';
+
+  const handleExportPDF = async () => {
+    if (!data) return;
+    setExportando(true);
+    try {
+      const { descargarReportePDF } = await import('./reportePdf');
+      await descargarReportePDF(data, periodoLabel);
+    } catch (err) {
+      console.error('Error al generar el PDF', err);
+    } finally {
+      setExportando(false);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -43,89 +56,116 @@ export default function Reportes() {
           <p className="text-slate-500">Análisis de ventas, ganancias y movimientos</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select 
+          <select
             value={periodo}
-            onChange={(e) => setPeriodo(e.target.value)}
+            onChange={(e) => setPeriodo(e.target.value as ReportePeriodo)}
             className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 rounded-lg text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            <option>Hoy</option>
-            <option>Esta Semana</option>
-            <option>Este Mes</option>
-            <option>Últimos 3 Meses</option>
-            <option>Este Año</option>
+            {PERIODOS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
           </select>
-          <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+          <button
+            onClick={handleExportPDF}
+            disabled={isLoading || isError || !data || exportando}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+          >
             <Download className="w-4 h-4" />
-            Exportar PDF
+            {exportando ? 'Generando…' : 'Exportar PDF'}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Ingresos Brutos" value="$7.500.000" icon={DollarSign} color="blue" />
-        <StatCard title="Costo Mercadería" value="-$4.200.000" icon={Package} color="rose" />
-        <StatCard title="Margen Bruto (Utilidad)" value="$3.300.000" icon={TrendingUp} color="emerald" />
-        <StatCard title="Clientes Atendidos" value="450" icon={Users} color="purple" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800 mb-6">Evolución de Ventas</h2>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockVentasData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} dy={10} />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fill: '#64748b'}} 
-                  tickFormatter={(value) => `$${value/1000000}M`}
-                  dx={-10}
-                />
-                <RechartsTooltip 
-                  cursor={{fill: '#f1f5f9'}}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
-                />
-                <Bar dataKey="total" fill="#0057B8" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {isLoading && (
+        <div className="flex items-center justify-center py-20 text-slate-500">
+          Cargando reporte…
         </div>
+      )}
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-          <h2 className="text-lg font-semibold text-slate-800 mb-2">Ventas por Categoría</h2>
-          <div className="flex-1 w-full min-h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={mockCategoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {mockCategoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <RechartsTooltip formatter={(value) => [`${value}%`, 'Porcentaje']} />
-              </PieChart>
-            </ResponsiveContainer>
+      {isError && !isLoading && (
+        <div className="flex items-center justify-center py-20 text-rose-600">
+          No se pudo cargar el reporte.
+        </div>
+      )}
+
+      {!isLoading && !isError && data && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard title="Ingresos Brutos" value={formatCurrency(data.ingresosBrutos)} icon={DollarSign} color="blue" />
+            <StatCard title="Costo Mercadería" value={`-${formatCurrency(data.costoMercaderia)}`} icon={Package} color="rose" />
+            <StatCard title="Margen Bruto (Utilidad)" value={formatCurrency(data.margenBruto)} icon={TrendingUp} color="emerald" />
+            <StatCard title="Ventas Realizadas" value={String(data.clientesAtendidos)} icon={Users} color="purple" />
           </div>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {mockCategoryData.map((category, index) => (
-              <div key={category.name} className="flex items-center gap-2 text-sm">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }}></span>
-                <span className="text-slate-600">{category.name} ({category.value}%)</span>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <h2 className="text-lg font-semibold text-slate-800 mb-6">Evolución de Ventas</h2>
+              <div className="h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={data.evolucionVentas}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} dy={10} />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{fill: '#64748b'}}
+                      tickFormatter={(value) => (value >= 1000000 ? `$${value / 1000000}M` : `$${value / 1000}k`)}
+                      dx={-10}
+                    />
+                    <RechartsTooltip
+                      cursor={{fill: '#f1f5f9'}}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
+                    />
+                    <Bar dataKey="total" fill="#0057B8" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            ))}
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+              <h2 className="text-lg font-semibold text-slate-800 mb-2">Ventas por Categoría</h2>
+              {data.ventasPorCategoria.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-400 min-h-[250px]">
+                  <Package className="w-8 h-8 mb-2 text-slate-300" />
+                  <p className="text-sm">Sin ventas en el periodo</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 w-full min-h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={data.ventasPorCategoria}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {data.ventasPorCategoria.map((entry, index) => (
+                            <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip formatter={(value) => [`${value}%`, 'Porcentaje']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {data.ventasPorCategoria.map((category, index) => (
+                      <div key={category.name} className="flex items-center gap-2 text-sm">
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                        <span className="text-slate-600">{category.name} ({category.value}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

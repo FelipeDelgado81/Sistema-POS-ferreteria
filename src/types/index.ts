@@ -155,6 +155,29 @@ export interface DashboardData {
   topProductos: DashboardTopProducto[];
 }
 
+// Reportes
+export type ReportePeriodo = 'hoy' | 'semana' | 'mes' | 'trimestre' | 'anio';
+
+export interface ReporteEvolucion {
+  name: string;
+  total: number;
+}
+
+export interface ReporteCategoria {
+  name: string;
+  value: number;
+  total: number;
+}
+
+export interface ReporteData {
+  ingresosBrutos: number;
+  costoMercaderia: number;
+  margenBruto: number;
+  clientesAtendidos: number;
+  evolucionVentas: ReporteEvolucion[];
+  ventasPorCategoria: ReporteCategoria[];
+}
+
 export interface AuthUser {
   email: string;
   name: string;
@@ -180,6 +203,12 @@ export interface ProductoForm {
   stock: number;
   minStock: number;
   active?: boolean;
+}
+
+export interface BulkImportResult {
+  creados: number;
+  actualizados: number;
+  errores: { fila: number; mensaje: string }[];
 }
 
 export interface ClienteForm {
