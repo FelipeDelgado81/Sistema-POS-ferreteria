@@ -5,6 +5,7 @@ import {
   createProducto,
   updateProducto,
   deleteProducto,
+  bulkImportProductos,
 } from '@/services/productosService';
 
 export const PRODUCTOS_KEY = ['productos'] as const;
@@ -47,6 +48,16 @@ export function useDeleteProducto() {
       qc.setQueryData<Producto[]>(PRODUCTOS_KEY, (prev = []) =>
         prev.filter((p) => p.id !== id),
       );
+    },
+  });
+}
+
+export function useBulkImportProductos() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (productos: ProductoForm[]) => bulkImportProductos(productos),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PRODUCTOS_KEY });
     },
   });
 }

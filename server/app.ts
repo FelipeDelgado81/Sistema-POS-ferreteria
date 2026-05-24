@@ -10,12 +10,13 @@ import ventasRouter from './routes/ventas';
 import cajaRouter from './routes/caja';
 import fiadosRouter from './routes/fiados';
 import dashboardRouter from './routes/dashboard';
+import reportesRouter from './routes/reportes';
 
 export function createApp(): Express {
   const app = express();
 
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   app.use('/api/health', healthRouter);
   app.use('/api/categorias', categoriasRouter);
@@ -26,6 +27,7 @@ export function createApp(): Express {
   app.use('/api/caja', cajaRouter);
   app.use('/api/fiados', fiadosRouter);
   app.use('/api/dashboard', dashboardRouter);
+  app.use('/api/reportes', reportesRouter);
 
   app.use(errorHandler);
 
