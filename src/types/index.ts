@@ -33,6 +33,31 @@ export interface Cliente {
   createdAt: string;
 }
 
+export type FiadoEstado = 'pendiente' | 'pagado' | 'anulado';
+
+export interface AbonoFiado {
+  id: string;
+  monto: number;
+  fecha: string;
+  notas: string | null;
+}
+
+export interface Fiado {
+  id: string;
+  ventaId: string | null;
+  clienteId: string;
+  montoOriginal: number | null;
+  saldoPendiente: number;
+  estado: FiadoEstado;
+  fecha: string;
+  abonos: AbonoFiado[];
+}
+
+export interface AbonoForm {
+  monto: number;
+  notas?: string;
+}
+
 export interface Proveedor {
   id: string;
   rut: string;
@@ -106,6 +131,28 @@ export interface VentasFiltros {
 
 export interface CartItem extends Producto {
   quantity: number;
+}
+
+// Dashboard
+export interface DashboardVentaDia {
+  name: string;
+  total: number;
+}
+
+export interface DashboardTopProducto {
+  nombre: string;
+  cantidad: number;
+  total: number;
+}
+
+export interface DashboardData {
+  ventasHoy: number;
+  ventasHoyTrend: number | null;
+  productosBajoStock: number;
+  nuevosClientesMes: number;
+  crecimientoSemanal: number | null;
+  ventasSemana: DashboardVentaDia[];
+  topProductos: DashboardTopProducto[];
 }
 
 export interface AuthUser {

@@ -3,6 +3,8 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Package, DollarSign, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDashboardQuery } from '@/hooks/queries/useDashboardQuery';
+import type { DashboardTopProducto } from '@/types';
 
 type DashColor = 'blue' | 'orange' | 'green' | 'purple';
 
@@ -15,17 +17,40 @@ interface StatCardProps {
   color: DashColor;
 }
 
-const salesData = [
-  { name: 'Lun', total: 450000 },
-  { name: 'Mar', total: 320000 },
-  { name: 'Mié', total: 550000 },
-  { name: 'Jue', total: 280000 },
-  { name: 'Vie', total: 690000 },
-  { name: 'Sáb', total: 850000 },
-  { name: 'Dom', total: 120000 },
-];
+const formatCurrency = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
+
+const formatTrend = (percent: number | null, fallback: string): { label: string; up: boolean } => {
+  if (percent == null) return { label: fallback, up: true };
+  const sign = percent >= 0 ? '+' : '';
+  return { label: `${sign}${percent}% vs ayer`, up: percent >= 0 };
+};
 
 export default function Dashboard() {
+  const { data, isLoading, isError } = useDashboardQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-slate-500">
+        Cargando dashboard…
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="flex items-center justify-center py-20 text-rose-600">
+        No se pudo cargar la información del dashboard.
+      </div>
+    );
+  }
+
+  const ventasHoy = formatTrend(data.ventasHoyTrend, 'Sin ventas ayer');
+  const crecimiento = formatTrend(data.crecimientoSemanal, 'Sin datos previos');
+  const crecimientoValue =
+    data.crecimientoSemanal == null
+      ? '—'
+      : `${data.crecimientoSemanal >= 0 ? '+' : ''}${data.crecimientoSemanal}%`;
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
@@ -34,36 +59,36 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          title="Ventas de Hoy" 
-          value="$850.000" 
-          icon={DollarSign} 
-          trend="+12%" 
-          trendUp={true} 
+        <StatCard
+          title="Ventas de Hoy"
+          value={formatCurrency(data.ventasHoy)}
+          icon={DollarSign}
+          trend={ventasHoy.label}
+          trendUp={ventasHoy.up}
           color="blue"
         />
-        <StatCard 
-          title="Productos Bajo Stock" 
-          value="14" 
-          icon={Package} 
-          trend="Requiere atención" 
-          trendUp={false} 
+        <StatCard
+          title="Productos Bajo Stock"
+          value={String(data.productosBajoStock)}
+          icon={Package}
+          trend={data.productosBajoStock > 0 ? 'Requiere atención' : 'Todo en orden'}
+          trendUp={data.productosBajoStock === 0}
           color="orange"
         />
-        <StatCard 
-          title="Nuevos Clientes" 
-          value="24" 
-          icon={Users} 
-          trend="+4%" 
-          trendUp={true} 
+        <StatCard
+          title="Nuevos Clientes"
+          value={String(data.nuevosClientesMes)}
+          icon={Users}
+          trend="Este mes"
+          trendUp={true}
           color="green"
         />
-        <StatCard 
-          title="Crecimiento Semanal" 
-          value="+18.2%" 
-          icon={TrendingUp} 
-          trend="vs semana anterior" 
-          trendUp={true} 
+        <StatCard
+          title="Crecimiento Semanal"
+          value={crecimientoValue}
+          icon={TrendingUp}
+          trend={crecimiento.label}
+          trendUp={crecimiento.up}
           color="purple"
         />
       </div>
@@ -73,17 +98,17 @@ export default function Dashboard() {
           <h2 className="text-lg font-semibold text-slate-800 mb-6">Ventas de la Semana</h2>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salesData}>
+              <BarChart data={data.ventasSemana}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} dy={10} />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fill: '#64748b'}} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{fill: '#64748b'}}
                   tickFormatter={(value) => `$${value/1000}k`}
                   dx={-10}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{fill: '#f1f5f9'}}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   formatter={(value) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
@@ -97,30 +122,31 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Productos Más Vendidos</h2>
           <div className="flex-1 overflow-auto">
-            <ul className="space-y-4">
-              {[
-                { name: 'Cemento Melón 25kg', qty: 145, price: 4200 },
-                { name: 'Tornillo Yeso Cartón 1 5/8"', qty: 89, price: 15 },
-                { name: 'Pintura Esmalte al Agua 1Gl', qty: 56, price: 18990 },
-                { name: 'Cable THHN 2.5mm Rojo', qty: 42, price: 450 },
-                { name: 'Siliocna Transparente 280ml', qty: 38, price: 2990 },
-              ].map((item, i) => (
-                <li key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm">
-                      #{i + 1}
+            {data.topProductos.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 py-10">
+                <Package className="w-8 h-8 mb-2 text-slate-300" />
+                <p className="text-sm">Aún no hay ventas registradas</p>
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {data.topProductos.map((item: DashboardTopProducto, i: number) => (
+                  <li key={item.nombre} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm">
+                        #{i + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800 text-sm truncate max-w-[150px]" title={item.nombre}>{item.nombre}</p>
+                        <p className="text-xs text-slate-500">{item.cantidad} unidades</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-slate-800 text-sm truncate max-w-[150px]" title={item.name}>{item.name}</p>
-                      <p className="text-xs text-slate-500">{item.qty} unidades</p>
+                    <div className="font-semibold text-sm text-slate-700">
+                      {formatCurrency(item.total)}
                     </div>
-                  </div>
-                  <div className="font-semibold text-sm text-slate-700">
-                    ${(item.qty * item.price).toLocaleString('es-CL')}
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <button className="mt-4 w-full py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
             Ver reporte completo
