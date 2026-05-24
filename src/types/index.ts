@@ -133,6 +133,28 @@ export interface CartItem extends Producto {
   quantity: number;
 }
 
+// Dashboard
+export interface DashboardVentaDia {
+  name: string;
+  total: number;
+}
+
+export interface DashboardTopProducto {
+  nombre: string;
+  cantidad: number;
+  total: number;
+}
+
+export interface DashboardData {
+  ventasHoy: number;
+  ventasHoyTrend: number | null;
+  productosBajoStock: number;
+  nuevosClientesMes: number;
+  crecimientoSemanal: number | null;
+  ventasSemana: DashboardVentaDia[];
+  topProductos: DashboardTopProducto[];
+}
+
 export interface AuthUser {
   email: string;
   name: string;
