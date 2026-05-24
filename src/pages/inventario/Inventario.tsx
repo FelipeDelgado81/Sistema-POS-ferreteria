@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 
 import { useProductos } from './hooks/useProductos';
@@ -10,6 +10,7 @@ import StockAlertPanel from './components/StockAlertPanel';
 import IngresosPanel   from './components/IngresosPanel';
 import ProductoModal   from './components/ProductoModal';
 import IngresoModal    from './components/IngresoModal';
+import ImportProductosModal from './components/ImportProductosModal';
 
 export default function Inventario() {
   const {
@@ -43,6 +44,7 @@ export default function Inventario() {
   const [selectedCategory, setSelectedCategory]     = useState('Todas');
   const [showOnlyLowStock, setShowOnlyLowStock]     = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen]             = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,14 +85,24 @@ export default function Inventario() {
           <h1 className="text-2xl font-bold text-slate-900">Inventario</h1>
           <p className="text-slate-500">Gestiona los productos, precios y stock</p>
         </div>
-        <button
-          type="button"
-          onClick={() => handleOpenModal()}
-          className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Nuevo Producto
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setIsImportOpen(true)}
+            className="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+          >
+            <Upload className="w-4 h-4" />
+            Importar
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOpenModal()}
+            className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Nuevo Producto
+          </button>
+        </div>
       </div>
 
       {/* Barra de alertas */}
@@ -158,6 +170,12 @@ export default function Inventario() {
         onConfirm={handleConfirmDelete}
         confirmText="Sí, eliminar"
         cancelText="Cancelar"
+      />
+
+      <ImportProductosModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        productos={productos}
       />
     </div>
   );

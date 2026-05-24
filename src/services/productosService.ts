@@ -1,4 +1,4 @@
-import type { Producto, ProductoForm } from '@/types';
+import type { Producto, ProductoForm, BulkImportResult } from '@/types';
 import api from './api';
 
 export const getProductos = async (): Promise<Producto[]> => {
@@ -23,5 +23,12 @@ export const updateProducto = async (id: string, payload: ProductoForm): Promise
 
 export const deleteProducto = async (id: string): Promise<{ success: boolean }> => {
   const { data } = await api.delete<{ success: boolean }>(`/productos/${id}`);
+  return data;
+};
+
+export const bulkImportProductos = async (
+  productos: ProductoForm[],
+): Promise<BulkImportResult> => {
+  const { data } = await api.post<BulkImportResult>('/productos/bulk', { productos });
   return data;
 };

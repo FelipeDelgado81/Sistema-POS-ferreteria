@@ -98,3 +98,52 @@ export async function mapProductoToDb(supabase: SupabaseClient, payload: Payload
     activo: payload.active ?? true,
   };
 }
+
+// Resuelve (creando las que falten) todas las categorías de una importación en
+// un solo paso, para evitar condiciones de carrera al crear la misma categoría
+// varias veces. Devuelve un mapa nombre -> id.
+export async function resolveCategoriasBulk(
+  supabase: SupabaseClient,
+  nombres: string[],
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const limpios = Array.from(new Set(nombres.map((n) => n.trim()).filter(Boolean)));
+  if (limpios.length === 0) return map;
+
+  const existentes = unwrapSupabaseResult(
+    await supabase.from('categorias').select('id, nombre').in('nombre', limpios),
+  ) as Row[];
+  for (const c of existentes) map.set(c.nombre, c.id);
+
+  const faltantes = limpios.filter((n) => !map.has(n));
+  if (faltantes.length > 0) {
+    const creadas = unwrapSupabaseResult(
+      await supabase
+        .from('categorias')
+        .insert(faltantes.map((nombre) => ({ nombre })))
+        .select('id, nombre'),
+    ) as Row[];
+    for (const c of creadas) map.set(c.nombre, c.id);
+  }
+
+  return map;
+}
+
+// Construye la fila de BD a partir de un payload ya validado, usando el mapa de
+// categorías pre-resuelto (versión síncrona para carga masiva).
+export function buildProductoRowBulk(payload: Payload, catMap: Map<string, string>) {
+  const categoryName = String(payload.category || '').trim();
+  return {
+    codigo_barra: String(payload.code).trim(),
+    nombre: String(payload.name).trim(),
+    descripcion: String(payload.description || '').trim() || null,
+    categoria_id: payload.categoryId || catMap.get(categoryName) || null,
+    proveedor_id: payload.proveedorId || null,
+    precio_compra: Number(payload.priceBuy || 0),
+    precio_venta_minorista: Number(payload.priceRetail || 0),
+    precio_venta_mayorista: Number(payload.priceWholesale || 0),
+    stock: Math.round(Number(payload.stock || 0)),
+    stock_minimo: Math.round(Number(payload.minStock || 0)),
+    activo: payload.active ?? true,
+  };
+}
